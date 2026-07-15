@@ -76,7 +76,7 @@
 
     <div>
       <h2 style="color:var(--navy); font-size:1.6rem; margin-top:0;">Send a Message</h2>
-      <form action="mailto:jassoroger@yahoo.com" method="post" enctype="text/plain">
+      <form id="contact-form">
         <div class="form-row">
           <label for="name">Name</label>
           <input type="text" id="name" name="Name" required>
@@ -138,5 +138,31 @@
 
 <script src="nav.js"></script>
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+<script>
+document.getElementById('contact-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var name = document.getElementById('name').value;
+  var company = document.getElementById('company').value;
+  var email = document.getElementById('email').value;
+  var phone = document.getElementById('phone').value;
+  var message = document.getElementById('message').value;
+
+  var subject = 'Website inquiry from ' + name;
+  var bodyLines = [
+    'Name: ' + name,
+    company ? 'Company: ' + company : null,
+    'Email: ' + email,
+    phone ? 'Phone: ' + phone : null,
+    '',
+    message
+  ].filter(function (line) { return line !== null; });
+
+  var mailtoUrl = 'mailto:jassoroger@yahoo.com'
+    + '?subject=' + encodeURIComponent(subject)
+    + '&body=' + encodeURIComponent(bodyLines.join('\n'));
+
+  window.location.href = mailtoUrl;
+});
+</script>
 </body>
 </html>
