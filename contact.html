@@ -106,7 +106,7 @@
         <p class="form-note" style="margin-top:0;">Pick whichever works on your device.</p>
         <div class="send-options-buttons">
           <a id="option-email" class="btn btn-primary" href="#">Email</a>
-          <a id="option-text" class="btn btn-outline-navy" href="#">Text Message</a>
+          <a id="option-text" class="btn btn-outline-navy" href="#" hidden>Text Message</a>
           <button id="option-copy" type="button" class="btn btn-outline-navy">Copy Message</button>
           <a id="option-call" class="btn btn-outline-navy" href="tel:19792191331">Call Instead</a>
         </div>
@@ -183,9 +183,26 @@ document.getElementById('contact-form').addEventListener('submit', function (e) 
     + '&body=' + encodeURIComponent(plainText);
   document.getElementById('option-email').href = mailtoUrl;
 
-  // Text message option (best-effort; body prefill support varies by device/carrier)
-  var smsUrl = 'sms:19792191331?&body=' + encodeURIComponent(subject + ' - ' + plainText);
-  document.getElementById('option-text').href = smsUrl;
+  // Text message option — offer it wherever a Messages/SMS app is likely available
+  // (iPhone/iPad, Mac Messages via iMessage, and Android), hide on Windows/Linux desktops
+  var ua = navigator.userAgent || '';
+  var isiPadOS = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+  var isiOS = (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) || isiPadOS;
+  var isMac = /Macintosh/.test(ua) && !isiPadOS;
+  var isAndroid = /Android/.test(ua);
+  var isApplePlatform = isiOS || isMac;
+  var textOption = document.getElementById('option-text');
+
+  if (isApplePlatform || isAndroid) {
+    // Apple's Messages app (iOS and macOS) and Android expect different separators before "body="
+    var smsUrl = isApplePlatform
+      ? 'sms:19792191331&body=' + encodeURIComponent(subject + ' - ' + plainText)
+      : 'sms:19792191331?body=' + encodeURIComponent(subject + ' - ' + plainText);
+    textOption.href = smsUrl;
+    textOption.hidden = false;
+  } else {
+    textOption.hidden = true;
+  }
 
   // Copy option
   var copyBtn = document.getElementById('option-copy');
