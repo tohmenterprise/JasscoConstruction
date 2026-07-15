@@ -97,9 +97,21 @@
           <label for="message">Project Details</label>
           <textarea id="message" name="Message" placeholder="Tell us about your project: scope, location, timeline..." required></textarea>
         </div>
-        <button type="submit" class="btn btn-primary" style="border:none; cursor:pointer;">Send Message</button>
-        <p class="form-note">Submitting opens your email app with this message addressed to Jassco Construction. Prefer to talk now? Call (979) 219-1331.</p>
+        <button type="submit" class="btn btn-primary" style="border:none; cursor:pointer;">Continue</button>
+        <p class="form-note">Next, you'll choose how you'd like to send it &mdash; email, text, or copy it yourself.</p>
       </form>
+
+      <div id="send-options" class="send-options" hidden>
+        <h3 style="color:var(--navy); font-size:1.1rem; margin:0 0 6px;">How would you like to send this?</h3>
+        <p class="form-note" style="margin-top:0;">Pick whichever works on your device.</p>
+        <div class="send-options-buttons">
+          <a id="option-email" class="btn btn-primary" href="#">Email</a>
+          <a id="option-text" class="btn btn-outline-navy" href="#">Text Message</a>
+          <button id="option-copy" type="button" class="btn btn-outline-navy">Copy Message</button>
+          <a id="option-call" class="btn btn-outline-navy" href="tel:19792191331">Call Instead</a>
+        </div>
+        <p id="copy-confirm" class="copy-confirm">Message copied! Paste it into an email, text, or contact form to send it.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -141,11 +153,18 @@
 <script>
 document.getElementById('contact-form').addEventListener('submit', function (e) {
   e.preventDefault();
-  var name = document.getElementById('name').value;
-  var company = document.getElementById('company').value;
-  var email = document.getElementById('email').value;
-  var phone = document.getElementById('phone').value;
-  var message = document.getElementById('message').value;
+
+  var form = e.target;
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+
+  var name = document.getElementById('name').value.trim();
+  var company = document.getElementById('company').value.trim();
+  var email = document.getElementById('email').value.trim();
+  var phone = document.getElementById('phone').value.trim();
+  var message = document.getElementById('message').value.trim();
 
   var subject = 'Website inquiry from ' + name;
   var bodyLines = [
@@ -156,12 +175,51 @@ document.getElementById('contact-form').addEventListener('submit', function (e) 
     '',
     message
   ].filter(function (line) { return line !== null; });
+  var plainText = bodyLines.join('\n');
 
+  // Email option
   var mailtoUrl = 'mailto:jassoroger@yahoo.com'
     + '?subject=' + encodeURIComponent(subject)
-    + '&body=' + encodeURIComponent(bodyLines.join('\n'));
+    + '&body=' + encodeURIComponent(plainText);
+  document.getElementById('option-email').href = mailtoUrl;
 
-  window.location.href = mailtoUrl;
+  // Text message option (best-effort; body prefill support varies by device/carrier)
+  var smsUrl = 'sms:19792191331?&body=' + encodeURIComponent(subject + ' - ' + plainText);
+  document.getElementById('option-text').href = smsUrl;
+
+  // Copy option
+  var copyBtn = document.getElementById('option-copy');
+  var copyConfirm = document.getElementById('copy-confirm');
+  copyBtn.onclick = function () {
+    var fullText = subject + '\n\n' + plainText;
+    function showConfirm() {
+      copyConfirm.classList.add('visible');
+      setTimeout(function () { copyConfirm.classList.remove('visible'); }, 6000);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(fullText).then(showConfirm).catch(function () {
+        fallbackCopy(fullText, showConfirm);
+      });
+    } else {
+      fallbackCopy(fullText, showConfirm);
+    }
+  };
+
+  function fallbackCopy(text, onDone) {
+    var tempArea = document.createElement('textarea');
+    tempArea.value = text;
+    tempArea.style.position = 'fixed';
+    tempArea.style.opacity = '0';
+    document.body.appendChild(tempArea);
+    tempArea.focus();
+    tempArea.select();
+    try { document.execCommand('copy'); onDone(); } catch (err) { /* no-op */ }
+    document.body.removeChild(tempArea);
+  }
+
+  var optionsPanel = document.getElementById('send-options');
+  optionsPanel.hidden = false;
+  optionsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 </script>
 </body>

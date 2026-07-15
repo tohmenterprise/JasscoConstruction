@@ -520,6 +520,51 @@ form {
   margin-top: 10px;
 }
 
+/* ---------- Send-options panel (contact page) ---------- */
+.send-options {
+  margin-top: 24px;
+  padding: 24px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+}
+
+.send-options[hidden] {
+  display: none;
+}
+
+.send-options-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 16px 0 4px;
+}
+
+.btn-outline-navy {
+  border: 1.5px solid var(--navy);
+  color: var(--navy);
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-outline-navy:hover {
+  background: var(--navy);
+  color: var(--white);
+}
+
+.copy-confirm {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--orange-dark);
+  margin-top: 10px;
+  display: none;
+}
+
+.copy-confirm.visible {
+  display: block;
+}
+
 /* ---------- About page ---------- */
 .timeline {
   border-left: 2px solid var(--gray-200);
